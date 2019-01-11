@@ -503,8 +503,15 @@ class btcpay extends PaymentModule {
 
       // Get shopping currency,  currently tested with be EUR
       $currency = Currency::getCurrencyInstance((int)$cart->id_currency);
+      if (true === empty($currency)) {
+          $this->_errors[] = $this->l('[Error] Invalid currency id.');
+          return;
+      }
 
       $transaction_speed = Configuration::get('btcpay_TXSPEED');
+      if (true === empty($transaction_speed)) {
+          $transaction_speed = 'default';
+      }
 
       // get the cart id to fetch cart information
       $cart_id = $cart->id;
@@ -568,7 +575,7 @@ class btcpay extends PaymentModule {
           PrestaShopLogger::addLog('[Error] The BTCPay payment plugin was called to process a payment but could not instantiate an Invoice object.', 3);
       }
 
-      $btcpay_currency = new \Bitpay\Currency('EUR');
+      $btcpay_currency = new \Bitpay\Currency($currency);
       $invoice->setOrderId((string)$cart_id);
       $invoice->setCurrency($btcpay_currency);
       $invoice->setFullNotifications(true);
